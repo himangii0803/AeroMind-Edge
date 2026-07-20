@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AeroMind Edge</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">A</div>
+
+            <div>
+                <h1>AeroMind</h1>
+                <p>Edge Maintenance Copilot</p>
+            </div>
+        </div>
+
+        <nav>
+            <button class="nav-item active" data-section="overview">
+                Fleet Overview
+            </button>
+
+            <button class="nav-item" data-section="analytics">
+                Fleet Analytics
+            </button>
+
+            <button class="nav-item" data-section="critical">
+                Critical Engines
+            </button>
+
+            <button class="nav-item" data-section="copilot">
+                Maintenance Copilot
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>NASA C-MAPSS FD001</p>
+            <span>● System Operational</span>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">AIRCRAFT HEALTH INTELLIGENCE</p>
+                <h2>Fleet Monitoring Dashboard</h2>
+                <p class="header-description">
+                    Edge-based predictive maintenance and engine risk analysis
+                </p>
+            </div>
+
+            <div class="header-actions">
+                <button class="secondary-button" id="downloadFleetReport">
+                    Download Fleet Report
+                </button>
+
+                <button class="icon-button" id="themeToggle" title="Toggle dark mode">
+                    ☾
+                </button>
+
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    Edge System Online
+                </div>
+            </div>
+        </header>
+
+        <section class="summary-grid">
+            <article class="summary-card">
+                <div class="card-top">
+                    <p>Total Engines</p>
+                    <span class="card-icon">01</span>
+                </div>
+
+                <h3 id="totalEngines">0</h3>
+                <span>Currently monitored</span>
+            </article>
+
+            <article class="summary-card">
+                <div class="card-top">
+                    <p>Average Fleet Health</p>
+                    <span class="card-icon">02</span>
+                </div>
+
+                <h3 id="averageHealth">0%</h3>
+                <span>Across active fleet</span>
+            </article>
+
+            <article class="summary-card">
+                <div class="card-top">
+                    <p>Average Remaining Life</p>
+                    <span class="card-icon">03</span>
+                </div>
+
+                <h3 id="averageRul">0</h3>
+                <span>Estimated operating cycles</span>
+            </article>
+
+            <article class="summary-card critical-card">
+                <div class="card-top">
+                    <p>Critical Engines</p>
+                    <span class="card-icon alert-icon">!</span>
+                </div>
+
+                <h3 id="criticalRisk">0</h3>
+                <span>Immediate attention required</span>
+            </article>
+        </section>
+
+        <section class="analytics-grid" id="analyticsSection">
+            <article class="chart-card">
+                <div class="section-heading">
+                    <div>
+                        <h3>Fleet Risk Distribution</h3>
+                        <p>Current fleet classification by maintenance priority</p>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper doughnut-wrapper">
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </article>
+
+            <article class="chart-card">
+                <div class="section-heading">
+                    <div>
+                        <h3>Remaining Useful Life</h3>
+                        <p>RUL distribution across monitored engines</p>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="rulChart"></canvas>
+                </div>
+            </article>
+        </section>
+
+        <section class="priority-panel">
+            <div>
+                <p class="eyebrow">MAINTENANCE PRIORITY</p>
+                <h3>Immediate Action Queue</h3>
+                <p id="priorityDescription">
+                    Loading critical engine information...
+                </p>
+            </div>
+
+            <button class="primary-button" id="viewCriticalButton">
+                View Critical Engines
+            </button>
+        </section>
+
+        <section class="toolbar">
+            <div>
+                <h3>Engine Fleet Status</h3>
+                <p>
+                    Predictive health, risk classification and maintenance guidance
+                </p>
+            </div>
+
+            <div class="toolbar-actions">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search engine ID"
+                >
+
+                <select id="riskFilter">
+                    <option value="ALL">All risk levels</option>
+                    <option value="LOW">Low</option>
+                    <option value="MODERATE">Moderate</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Engine</th>
+                        <th>Current Cycle</th>
+                        <th>Predicted RUL</th>
+                        <th>Health</th>
+                        <th>Failure Risk</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="engineTableBody"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <div class="modal hidden" id="engineModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+
+        <div class="modal-content">
+            <button class="close-button" id="closeModal">×</button>
+
+            <div class="modal-heading">
+                <div>
+                    <p class="eyebrow">AEROMIND MAINTENANCE COPILOT</p>
+                    <h2 id="modalEngineId">Engine Details</h2>
+                </div>
+
+                <span class="modal-risk-badge" id="modalRiskBadge">
+                    LOW
+                </span>
+            </div>
+
+            <div class="modal-metrics">
+                <div>
+                    <span>Health Score</span>
+                    <strong id="modalHealth">0%</strong>
+                </div>
+
+                <div>
+                    <span>Failure Risk</span>
+                    <strong id="modalRisk">0%</strong>
+                </div>
+
+                <div>
+                    <span>Remaining Life</span>
+                    <strong id="modalRul">0 cycles</strong>
+                </div>
+
+                <div>
+                    <span>Confidence</span>
+                    <strong id="modalConfidence">0%</strong>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-block">
+                    <h4>Detected Condition</h4>
+                    <p id="modalIssue"></p>
+                </div>
+
+                <div class="detail-block">
+                    <h4>Estimated Maintenance Time</h4>
+                    <p id="modalMaintenanceTime"></p>
+                </div>
+            </div>
+
+            <div class="detail-block">
+                <h4>Maintenance Copilot Insight</h4>
+                <p id="modalExplanation"></p>
+            </div>
+
+            <div class="detail-block checklist-block">
+                <h4>Recommended Inspection Checklist</h4>
+                <ul id="modalChecklist"></ul>
+            </div>
+
+            <div class="detail-block recommendation-block">
+                <h4>Recommended Maintenance Action</h4>
+                <p id="modalRecommendation"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="secondary-button" id="downloadEngineReport">
+                    Download Engine Report
+                </button>
+
+                <button class="primary-button" id="acknowledgeButton">
+                    Acknowledge Recommendation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
