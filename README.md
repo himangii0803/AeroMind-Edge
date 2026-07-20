@@ -179,10 +179,10 @@ cd frontend
 python3 -m http.server 8000
 ```
 
-Open
+Open for demo
 
 ```
-http://localhost:8000
+https://urban-waddle-5g56gxgvpxg9hv9w5-8000.app.github.dev/
 ```
 
 ---
